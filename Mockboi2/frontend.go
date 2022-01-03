@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -18,6 +19,7 @@ type server struct {
 }
 
 var client, client1, client2 protobuf.MockClient
+var currentLeader int
 
 func main() {
 	LOG_FILE := "../log.txt"
@@ -55,6 +57,8 @@ func main() {
 	client1 = protobuf.NewMockClient(conn1)
 	client2 = protobuf.NewMockClient(conn2)
 
+	currentLeader = 2
+
 	fmt.Println("Frontend is running")
 	//go TakeInput(client, client1, client2)
 	time.Sleep(1000 * time.Second)
@@ -77,38 +81,26 @@ func startServer() {
 }
 
 func (s *server) Increment(ctx context.Context, in *protobuf.IncrementRequest) (*protobuf.IncrementReply, error) {
-	message, error := client.Increment(context.Background(), &protobuf.IncrementRequest{})
-	message1, error1 := client1.Increment(context.Background(), &protobuf.IncrementRequest{})
-	message2, error2 := client2.Increment(context.Background(), &protobuf.IncrementRequest{})
-
-	var values []int32
-	if error == nil {
-		values = append(values, message.NewValue)
-	}
-	if error1 == nil {
-		values = append(values, message1.NewValue)
-	}
-	if error2 == nil {
-		values = append(values, message2.NewValue)
-	}
-
-	var highestValue int32
-	for i := 0; i < len(values); i++ {
-		if values[i] > highestValue {
-			highestValue = values[i]
+	fmt.Println("Increment got through to frontend")
+	if currentLeader == 0 {
+		fmt.Println("Currentleader is 0")
+		message, error := client.Increment(context.Background(), &protobuf.IncrementRequest{})
+		if error == nil {
+			return &protobuf.IncrementReply{NewValue: message.NewValue}, nil
+		}
+	} else if currentLeader == 1 {
+		fmt.Println("Currentleader is 1")
+		message1, error1 := client1.Increment(context.Background(), &protobuf.IncrementRequest{})
+		if error1 == nil {
+			return &protobuf.IncrementReply{NewValue: message1.NewValue}, nil
+		}
+	} else if currentLeader == 2 {
+		fmt.Println("Currentleader is 2")
+		message2, error2 := client2.Increment(context.Background(), &protobuf.IncrementRequest{})
+		if error2 == nil {
+			fmt.Println("new value is : ", message2.NewValue)
+			return &protobuf.IncrementReply{NewValue: message2.NewValue}, nil
 		}
 	}
-
-	//syncValues
-	if error == nil && message.NewValue != highestValue {
-		client.SetValue(context.Background(), &protobuf.SetValueRequest{Value: highestValue})
-	}
-	if error1 == nil && message1.NewValue != highestValue {
-		client1.SetValue(context.Background(), &protobuf.SetValueRequest{Value: highestValue})
-	}
-	if error2 == nil && message2.NewValue != highestValue {
-		client2.SetValue(context.Background(), &protobuf.SetValueRequest{Value: highestValue})
-	}
-
-	return &protobuf.IncrementReply{NewValue: highestValue}, nil
+	return &protobuf.IncrementReply{NewValue: 0}, errors.New("No current leader")
 }

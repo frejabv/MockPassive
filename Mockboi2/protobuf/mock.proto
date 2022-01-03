@@ -18,4 +18,6 @@ message SetValueRequest {
   int32 value = 1;
 }
 
-message SetValueReply {}
+message SetValueReply {
+  bool ack = 1;
+}
