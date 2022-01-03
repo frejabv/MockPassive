@@ -1,0 +1,26 @@
+2022/01/03 17:34:45 server listening at [::]:8070
+2022/01/03 17:35:00 Couldn't increment - something went wrong
+2022/01/03 17:36:57 server listening at [::]:8070
+2022/01/03 17:37:05 The new value is: 0
+2022/01/03 17:37:06 The new value is: 1
+2022/01/03 17:37:06 The new value is: 2
+2022/01/03 17:37:06 The new value is: 3
+2022/01/03 17:37:07 The new value is: 4
+2022/01/03 17:37:07 The new value is: 5
+2022/01/03 17:37:07 The new value is: 6
+2022/01/03 17:38:51 The new value is: 7
+2022/01/03 17:38:52 The new value is: 8
+2022/01/03 17:38:52 The new value is: 9
+2022/01/03 17:38:52 The new value is: 10
+2022/01/03 17:38:52 The new value is: 11
+2022/01/03 17:38:52 The new value is: 12
+2022/01/03 17:39:03 The new value is: 13
+2022/01/03 17:39:03 The new value is: 14
+2022/01/03 17:39:14 The new value is: 15
+2022/01/03 17:39:15 The new value is: 16
+2022/01/03 17:39:15 The new value is: 17
+2022/01/03 17:39:15 The new value is: 18
+2022/01/03 17:39:15 The new value is: 19
+2022/01/03 17:39:28 The new value is: 20
+2022/01/03 17:39:28 The new value is: 21
+2022/01/03 17:39:42 The new value is: 22
