@@ -33,7 +33,6 @@ func main() {
 
 	go startServer(port)
 
-	fmt.Println("Port is:", port)
 	//Start client(s)
 	if port == "0" {
 		client1 = startClient("1")
@@ -48,7 +47,6 @@ func main() {
 		client1 = startClient("1")
 		clients = append(clients, client0, client1)
 		leader = true
-		fmt.Println("Hello this is the leader speaking")
 	}
 
 	fmt.Println("Server is running")
@@ -85,45 +83,15 @@ func startServer(port string) {
 
 func (s *server) Increment(ctx context.Context, in *protobuf.IncrementRequest) (*protobuf.IncrementReply, error) {
 	log.Println("Server received increment")
-	fmt.Println("Increment got through to server")
 	if leader {
-		fmt.Println("Server is leader")
 		value += 1
-		fmt.Println("Value is:", value)
 		for _, cli := range clients {
 			response, err := cli.SetValue(context.Background(), &protobuf.SetValueRequest{Value: value})
-			fmt.Println(response.GetAck())
 			if !response.GetAck() || err != nil {
-				//one replica is down
-				fmt.Println("A client is down")
+				//a replica is down
+				fmt.Println("A replica is down")
 			}
 		}
-
-		/*var values []int32
-		var message *protobuf.IncrementReply
-		var err error
-		for _, cli := range clients {
-			message, err = cli.Increment(context.Background(), &protobuf.IncrementRequest{})
-			if err == nil {
-				values = append(values, message.NewValue)
-			}
-		}
-
-		//Maybe this is not necessary?
-		var highestValue int32
-		for i := 0; i < len(values); i++ {
-			if values[i] > highestValue {
-				highestValue = values[i]
-			}
-		}
-
-		//syncValues
-		for _, cli := range clients {
-			if err == nil && message.NewValue != highestValue {
-				cli.SetValue(context.Background(), &protobuf.SetValueRequest{Value: highestValue})
-			}
-		}*/
-
 	}
 	return &protobuf.IncrementReply{NewValue: value}, nil
 }

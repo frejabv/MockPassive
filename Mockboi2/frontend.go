@@ -81,7 +81,6 @@ func startServer() {
 }
 
 func (s *server) Increment(ctx context.Context, in *protobuf.IncrementRequest) (*protobuf.IncrementReply, error) {
-	fmt.Println("Increment got through to frontend")
 	if currentLeader == 0 {
 		fmt.Println("Currentleader is 0")
 		message, error := client.Increment(context.Background(), &protobuf.IncrementRequest{})
@@ -98,7 +97,6 @@ func (s *server) Increment(ctx context.Context, in *protobuf.IncrementRequest) (
 		fmt.Println("Currentleader is 2")
 		message2, error2 := client2.Increment(context.Background(), &protobuf.IncrementRequest{})
 		if error2 == nil {
-			fmt.Println("new value is : ", message2.NewValue)
 			return &protobuf.IncrementReply{NewValue: message2.NewValue}, nil
 		}
 	}
