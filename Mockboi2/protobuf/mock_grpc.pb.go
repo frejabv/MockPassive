@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion7
 type MockClient interface {
 	Increment(ctx context.Context, in *IncrementRequest, opts ...grpc.CallOption) (*IncrementReply, error)
 	SetValue(ctx context.Context, in *SetValueRequest, opts ...grpc.CallOption) (*SetValueReply, error)
+	Heartbeat(ctx context.Context, in *HeartbeatRequest, opts ...grpc.CallOption) (*HeartbeatReply, error)
+	Election(ctx context.Context, in *ElectionRequest, opts ...grpc.CallOption) (*ElectionReply, error)
 }
 
 type mockClient struct {
@@ -48,12 +50,32 @@ func (c *mockClient) SetValue(ctx context.Context, in *SetValueRequest, opts ...
 	return out, nil
 }
 
+func (c *mockClient) Heartbeat(ctx context.Context, in *HeartbeatRequest, opts ...grpc.CallOption) (*HeartbeatReply, error) {
+	out := new(HeartbeatReply)
+	err := c.cc.Invoke(ctx, "/mock.Mock/Heartbeat", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mockClient) Election(ctx context.Context, in *ElectionRequest, opts ...grpc.CallOption) (*ElectionReply, error) {
+	out := new(ElectionReply)
+	err := c.cc.Invoke(ctx, "/mock.Mock/Election", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MockServer is the server API for Mock service.
 // All implementations must embed UnimplementedMockServer
 // for forward compatibility
 type MockServer interface {
 	Increment(context.Context, *IncrementRequest) (*IncrementReply, error)
 	SetValue(context.Context, *SetValueRequest) (*SetValueReply, error)
+	Heartbeat(context.Context, *HeartbeatRequest) (*HeartbeatReply, error)
+	Election(context.Context, *ElectionRequest) (*ElectionReply, error)
 	mustEmbedUnimplementedMockServer()
 }
 
@@ -66,6 +88,12 @@ func (UnimplementedMockServer) Increment(context.Context, *IncrementRequest) (*I
 }
 func (UnimplementedMockServer) SetValue(context.Context, *SetValueRequest) (*SetValueReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetValue not implemented")
+}
+func (UnimplementedMockServer) Heartbeat(context.Context, *HeartbeatRequest) (*HeartbeatReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Heartbeat not implemented")
+}
+func (UnimplementedMockServer) Election(context.Context, *ElectionRequest) (*ElectionReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Election not implemented")
 }
 func (UnimplementedMockServer) mustEmbedUnimplementedMockServer() {}
 
@@ -116,6 +144,42 @@ func _Mock_SetValue_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Mock_Heartbeat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HeartbeatRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MockServer).Heartbeat(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mock.Mock/Heartbeat",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MockServer).Heartbeat(ctx, req.(*HeartbeatRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Mock_Election_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ElectionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MockServer).Election(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mock.Mock/Election",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MockServer).Election(ctx, req.(*ElectionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Mock_ServiceDesc is the grpc.ServiceDesc for Mock service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -130,6 +194,14 @@ var Mock_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetValue",
 			Handler:    _Mock_SetValue_Handler,
+		},
+		{
+			MethodName: "Heartbeat",
+			Handler:    _Mock_Heartbeat_Handler,
+		},
+		{
+			MethodName: "Election",
+			Handler:    _Mock_Election_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

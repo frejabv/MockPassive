@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -24,6 +25,7 @@ var value int32 = -1
 var port string
 var leader bool = false
 var clients []protobuf.MockClient
+var timer int = 30
 
 func main() {
 	log.Print("Welcome Server. You need to write 0, 1 or 2:")
@@ -50,6 +52,13 @@ func main() {
 	}
 
 	fmt.Println("Server is running")
+
+	/*if leader {
+		go heartbeat()
+	} else {
+		go timeTick()
+	}*/
+
 	time.Sleep(1000 * time.Second)
 }
 
@@ -81,16 +90,56 @@ func startServer(port string) {
 	}
 }
 
+func heartbeat() {
+	for {
+		fmt.Println("Heartbeat called")
+		for _, cli := range clients {
+			response, err := cli.Heartbeat(context.Background(), &protobuf.HeartbeatRequest{CurrentValue: value})
+			if !response.GetAck() || err != nil {
+				//a replica is down
+				fmt.Println("A replica did not receive heartbeat")
+			}
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
+
+func timeTick() {
+	for {
+		timer--
+		time.Sleep(time.Second)
+		if timer < 1 {
+			//omg the leader is dead!
+			//this means 2 is dead and highest id is 1, so this is a hardcoded solution
+			if port == "1" {
+				leader = true
+				timer = 10
+				go heartbeat()
+			} else {
+				response, err := client1.Election(context.Background(), &protobuf.ElectionRequest{})
+				if response.GetAck() && err == nil {
+					timer = 10
+				}
+			}
+			//actual election implementation would go here
+		}
+	}
+}
+
 func (s *server) Increment(ctx context.Context, in *protobuf.IncrementRequest) (*protobuf.IncrementReply, error) {
 	log.Println("Server received increment")
 	if leader {
 		value += 1
+		var notAcks int
 		for _, cli := range clients {
 			response, err := cli.SetValue(context.Background(), &protobuf.SetValueRequest{Value: value})
 			if !response.GetAck() || err != nil {
 				//a replica is down
 				fmt.Println("A replica is down")
 			}
+		}
+		if notAcks > 1 {
+			return &protobuf.IncrementReply{NewValue: value}, errors.New("Could not increment - no replicas responding")
 		}
 	}
 	return &protobuf.IncrementReply{NewValue: value}, nil
@@ -100,4 +149,19 @@ func (s *server) SetValue(ctx context.Context, in *protobuf.SetValueRequest) (*p
 	log.Println("Server received set value request")
 	value = in.Value
 	return &protobuf.SetValueReply{Ack: true}, nil
+}
+
+func (s *server) Heartbeat(ctx context.Context, in *protobuf.HeartbeatRequest) (*protobuf.HeartbeatReply, error) {
+	log.Println("Server received heartbeat")
+	fmt.Println("Heartbeat received")
+	value = in.CurrentValue
+	timer = 10
+	fmt.Println(timer)
+	return &protobuf.HeartbeatReply{Ack: true}, nil
+}
+
+func (s *server) Election(ctx context.Context, in *protobuf.ElectionRequest) (*protobuf.ElectionReply, error) {
+	log.Println("Server is now the new leader")
+	leader = true
+	return &protobuf.ElectionReply{Ack: true}, nil
 }

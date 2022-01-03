@@ -6,6 +6,8 @@ option go_package = "https://github.com/frejabv/MockPassive/;protobuf";
 service Mock {
   rpc Increment (IncrementRequest) returns (IncrementReply) {}
   rpc SetValue (SetValueRequest) returns (SetValueReply) {}
+  rpc Heartbeat (HeartbeatRequest) returns (HeartbeatReply) {}
+  rpc Election (ElectionRequest) returns (ElectionReply) {}
 }
 
 message IncrementRequest {}
@@ -20,4 +22,18 @@ message SetValueRequest {
 
 message SetValueReply {
   bool ack = 1;
+}
+
+message HeartbeatRequest {
+	int32 currentValue = 1;
+}
+
+message HeartbeatReply {
+	bool ack = 1;
+}
+
+message ElectionRequest {}
+
+message ElectionReply {
+	bool ack = 1;
 }
