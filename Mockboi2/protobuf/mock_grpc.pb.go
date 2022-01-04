@@ -133,5 +133,5 @@ var Mock_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "protobuf/mock.proto",
+	Metadata: "Mockboi2/protobuf/mock.proto",
 }

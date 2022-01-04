@@ -60,6 +60,7 @@ func startClient(port string) protobuf.MockClient {
 	if err != nil { //error can not establish connection
 		log.Fatalf("did not connect: %v", err)
 	}
+	fmt.Printf("Connection to port 808%s was succesful", port)
 
 	defer conn.Close()
 
@@ -90,12 +91,17 @@ func (s *server) Increment(ctx context.Context, in *protobuf.IncrementRequest) (
 		fmt.Println("Server is leader")
 		value += 1
 		fmt.Println("Value is:", value)
+		response, err := client0.SetValue(context.Background(), &protobuf.SetValueRequest{Value: value})
+		fmt.Println("response from 0", response.GetAck())
+		if err != nil {
+			fmt.Println("epic fail")
+		}
 		for _, cli := range clients {
 			response, err := cli.SetValue(context.Background(), &protobuf.SetValueRequest{Value: value})
 			fmt.Println(response.GetAck())
 			if !response.GetAck() || err != nil {
 				//one replica is down
-				fmt.Println("A client is down")
+				fmt.Println("A replica is down")
 			}
 		}
 
@@ -130,6 +136,7 @@ func (s *server) Increment(ctx context.Context, in *protobuf.IncrementRequest) (
 
 func (s *server) SetValue(ctx context.Context, in *protobuf.SetValueRequest) (*protobuf.SetValueReply, error) {
 	log.Println("Server received set value request")
+	fmt.Println("received setvalue")
 	value = in.Value
 	return &protobuf.SetValueReply{Ack: true}, nil
 }

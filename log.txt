@@ -1,3 +1,26 @@
 2022/01/03 18:57:01 The new value is: 5
 2022/01/03 18:57:02 The new value is: 6
 2022/01/03 18:57:02 The new value is: 7
+2022/01/03 21:03:46 The new value is: 0
+2022/01/03 21:03:46 The new value is: 1
+2022/01/03 21:03:47 The new value is: 2
+2022/01/03 21:06:26 The new value is: 0
+2022/01/03 21:06:28 The new value is: 1
+2022/01/03 21:06:28 The new value is: 2
+2022/01/03 21:06:28 The new value is: 3
+2022/01/03 21:06:28 The new value is: 4
+2022/01/03 21:06:29 The new value is: 5
+2022/01/03 21:07:59 Couldn't increment - something went wrong
+2022/01/03 21:18:05 The new value is: 0
+2022/01/03 21:18:06 The new value is: 1
+2022/01/03 21:18:06 The new value is: 2
+2022/01/03 21:24:03 The new value is: 0
+2022/01/03 21:24:04 The new value is: 1
+2022/01/03 21:33:22 The new value is: 0
+2022/01/03 21:35:34 The new value is: 0
+2022/01/03 21:37:18 The new value is: 0
+2022/01/03 21:39:30 The new value is: 0
+2022/01/04 10:02:51 The new value is: 0
+2022/01/04 10:02:52 The new value is: 1
+2022/01/04 10:07:12 The new value is: 0
+2022/01/04 10:07:13 The new value is: 1
